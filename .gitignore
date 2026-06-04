@@ -1,0 +1,28 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual env
+
+venv/
+.env
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS
+
+.DS_Store
+
+# Database
+
+*.db
+
+# Logs
+
+*.log
