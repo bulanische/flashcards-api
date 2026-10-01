@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Integer, Boolean, DateTime
+from sqlalchemy import Integer, DateTime
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,

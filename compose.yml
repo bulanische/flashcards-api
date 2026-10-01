@@ -1,0 +1,25 @@
+services:
+  postgres:
+    # Используем официальный образ PostgreSQL
+    image: postgres:16
+
+    # Имя контейнера PostgreSQL
+    container_name: cards_postgres
+
+    # Переменные для создания базы данных
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cards
+
+    # Открываем PostgreSQL на стандартном порту
+    ports:
+      - "5432:5432"
+
+    # Сохраняем данные PostgreSQL после перезапуска контейнера
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  # Docker volume для хранения данных PostgreSQL
+  postgres_data:

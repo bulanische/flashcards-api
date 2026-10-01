@@ -4,3 +4,5 @@ sqlalchemy
 pydantic-settings
 python-dotenv
 alembic
+pydantic[email]
+asyncpg

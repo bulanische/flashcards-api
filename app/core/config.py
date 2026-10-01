@@ -1,4 +1,4 @@
-from pydantic import EmailStr
+from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,10 +10,16 @@ class Settings(BaseSettings):
         "Получение карточек со словом и его значением для изучения "
         "иностранного языка"
     )
-    secret: str = "SECRET"
-    database_url: str = "sqlite+aiosqlite:///./fastapi.db"
+    # Секретный ключ для JWT и других криптографических операций
+    secret_key: str
+    database_url: str = "DB_URL"
     first_superuser_email: EmailStr | None = None
     first_superuser_password: str | None = None
+    postgres_user: str
+    postgres_password: SecretStr
+    postgres_db: str
+    postgres_server: str
+    postgres_port: int = 5432
 
     model_config = SettingsConfigDict(env_file=".env")
 
