@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base, CommonMixin
@@ -7,8 +7,22 @@ from app.core.db import Base, CommonMixin
 class Language(CommonMixin, Base):
     __tablename__ = "languages"
 
+        # Код языка должен быть уникальным среди всех языков
+    __table_args__ = (
+        Index(
+            "uq_language_code",
+            "code",
+            unique=True,
+        ),
+    )
+
     # Название языка: "Русский", "Испанский", "English"
     name: Mapped[str] = mapped_column()
+
+    # Название языка на самом языке: "Русский", "Español", "Deutsch"
+    native_name: Mapped[str | None] = mapped_column(
+        nullable=True,
+    )
 
     # Код языка: "ru", "es", "en"
     code: Mapped[str] = mapped_column()

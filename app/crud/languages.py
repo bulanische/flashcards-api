@@ -17,6 +17,7 @@ async def get_all_languages(
                 Language.user_id == user.id,
             )
         )
+        .order_by(Language.name)
     )
 
     # Возвращаем список объектов Language
