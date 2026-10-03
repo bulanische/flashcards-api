@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.router import current_user
 from app.core.db import get_async_session
-from app.crud.deck import deck_crud, get_user_decks
+from app.crud.deck import deck_crud, get_user_deck_by_deck_id
 from app.models.user import User
 from app.schemas.deck import DeckCreate
 from app.crud.language import get_available_language
@@ -26,7 +26,7 @@ async def get_all_decks(
     """Возвращает колоды текущего пользователя."""
 
     # Получаем колоды текущего пользователя
-    return await get_user_decks(
+    return await get_user_deck_by_deck_id(
         session=session,
         user=user,
     )

@@ -42,7 +42,7 @@ class Deck(CommonMixin, Base):
         back_populates="language_b_decks",
     )
 
-    # Связи между этой колодой и её карточками
-    deck_cards: Mapped[list["DeckCard"]] = relationship(
+    # Карточки этой колоды
+    cards: Mapped[list["Card"]] = relationship(
         back_populates="deck"
     )
