@@ -31,3 +31,10 @@ class CardRead(CardBase):
 
     # Уникальный идентификатор карточки
     id: int
+
+class CardUpdate(BaseModel):
+    """Схема для обновления карточки."""
+
+    word: str
+    translation: str
+    deck_id: int

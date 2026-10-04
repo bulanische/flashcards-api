@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.deck import get_user_deck_by_deck_id
+
 from app.models.deck import Deck
 from app.models.user import User
-
 
 async def validate_card_deck(
     session: AsyncSession,
@@ -49,3 +49,5 @@ def validate_match_card_deck_langs(
         raise ValueError(
             "Card languages do not match the deck languages."
         )
+
+

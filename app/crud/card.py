@@ -34,17 +34,62 @@ async def create_card(
 async def get_all_user_cards(
     session: AsyncSession,
     user: User,
+    deck_ids: list[int] | None = None,
 ) -> list[Card]:
     """Возвращает все карточки из колод текущего пользователя."""
 
     # Получаем карточки только из колод текущего пользователя
-    result = await session.execute(
-        select(Card).where(
-            Card.deck.has(
-                Deck.user_id == user.id
-            )
+    query = select(Card).where(
+        Card.deck.has(
+            Deck.user_id == user.id
         )
     )
 
+    # Если указаны конкретные колоды, ограничиваем выборку ими
+    if deck_ids:
+        query = query.where(
+            Card.deck_id.in_(deck_ids)
+        )
+
+    result = await session.execute(query)
+
     # Возвращаем список найденных карточек
     return list(result.scalars().all())
+
+async def get_user_card_by_card_id(
+    session: AsyncSession,
+    card_id: int,
+    user: User,
+) -> Card | None:
+    """Возвращает карточку текущего пользователя по ID."""
+
+    # Ищем карточку только в колодах текущего пользователя
+    result = await session.execute(
+        select(Card).where(
+            Card.id == card_id,
+            Card.deck.has(
+                Deck.user_id == user.id
+            ),
+        )
+    )
+
+    # Возвращаем найденную карточку или None
+    return result.scalar_one_or_none()
+
+async def update_card(
+    session: AsyncSession,
+    card: Card,
+    data: dict,
+) -> Card:
+    """Обновляет данные карточки."""
+
+    for field, value in data.items():
+        setattr(card, field, value)
+
+    # Сохраняем изменения в базе данных
+    await session.commit()
+
+    # Обновляем объект данными из базы
+    await session.refresh(card)
+
+    return card
