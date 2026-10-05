@@ -43,3 +43,5 @@ async def get_user_deck_by_deck_id(
 
     # Возвращаем найденную колоду или None
     return result.scalar_one_or_none()
+
+

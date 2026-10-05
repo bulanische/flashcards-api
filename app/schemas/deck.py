@@ -28,3 +28,8 @@ class DeckRead(DeckBase):
 
     # Пользователь-владелец колоды
     user_id: int
+
+class DeckUpdate(BaseModel):
+    """Схема обновления колоды"""
+
+    name: str

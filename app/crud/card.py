@@ -75,21 +75,3 @@ async def get_user_card_by_card_id(
 
     # Возвращаем найденную карточку или None
     return result.scalar_one_or_none()
-
-async def update_card(
-    session: AsyncSession,
-    card: Card,
-    data: dict,
-) -> Card:
-    """Обновляет данные карточки."""
-
-    for field, value in data.items():
-        setattr(card, field, value)
-
-    # Сохраняем изменения в базе данных
-    await session.commit()
-
-    # Обновляем объект данными из базы
-    await session.refresh(card)
-
-    return card

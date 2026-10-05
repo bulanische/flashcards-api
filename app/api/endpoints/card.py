@@ -14,7 +14,7 @@ from app.crud.card import (
     create_card,
     get_all_user_cards,
     get_user_card_by_card_id,
-    update_card,
+    card_crud,
 )
 from app.models.user import User
 from app.schemas.card import (
@@ -25,6 +25,7 @@ from app.schemas.card import (
 from app.api.validators.card import (
     validate_card_deck,
     validate_match_card_deck_langs,
+    validate_unique_card,
 )
 
 
@@ -35,6 +36,22 @@ SessionDependency = Annotated[
     Depends(get_async_session),
 ]
 
+@router.get(
+    "/",
+    response_model=list[CardRead],
+)
+async def get_all_cards(
+    session: SessionDependency,
+    deck_ids: list[int] | None = Query(default=None),
+    user: User = Depends(current_user),
+):
+    """Возвращает все карточки из колод текущего пользователя."""
+
+    return await get_all_user_cards(
+        session=session,
+        user=user,
+        deck_ids=deck_ids,
+    )
 
 @router.post("/")
 async def create_new_card(
@@ -69,6 +86,23 @@ async def create_new_card(
             detail=str(error),
         ) from error
 
+    # Проверяем, что такая карточка ещё не существует в колоде
+    try:
+        await validate_unique_card(
+            session=session,
+            user=user,
+            deck_id=card.deck_id,
+            word=card.word,
+            translation=card.translation,
+            language_a_id=card.language_a_id,
+            language_b_id=card.language_b_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=409,
+            detail=str(error),
+        ) from error
+
     # Создаём карточку
     return await create_card(
         session=session,
@@ -79,22 +113,6 @@ async def create_new_card(
         language_b_id=card.language_b_id,
     )
 
-@router.get(
-    "/",
-    response_model=list[CardRead],
-)
-async def get_all_cards(
-    session: SessionDependency,
-    deck_ids: list[int] | None = Query(default=None),
-    user: User = Depends(current_user),
-):
-    """Возвращает все карточки из колод текущего пользователя."""
-
-    return await get_all_user_cards(
-        session=session,
-        user=user,
-        deck_ids=deck_ids,
-    )
 
 
 @router.put("/{card_id}", response_model=CardRead)
@@ -106,7 +124,7 @@ async def update_existing_card(
 ):
     """Обновляет карточку текущего пользователя."""
 
-    # Получаем существующую карточку текущего пользователя
+    # Получаем карточку текущего пользователя
     current_card = await get_user_card_by_card_id(
         session=session,
         card_id=card_id,
@@ -120,36 +138,42 @@ async def update_existing_card(
             detail="Card not found or unavailable.",
         )
 
-    # Проверяем, принадлежит ли новая колода текущему пользователю
-    try:
-        deck = await validate_card_deck(
-            session=session,
-            deck_id=card.deck_id,
-            user=user,
-        )
-    except ValueError as error:
-        raise HTTPException(
-            status_code=404,
-            detail=str(error),
-        ) from error
+    # Проверяем доступность новой колоды
+    deck = await validate_card_deck(
+        session=session,
+        deck_id=card.deck_id,
+        user=user,
+    )
 
     # Проверяем соответствие языков карточки языкам новой колоды
+    validate_match_card_deck_langs(
+        deck=deck,
+        language_a_id=current_card.language_a_id,
+        language_b_id=current_card.language_b_id,
+    )
+
+    # Проверяем, что такая карточка ещё не существует в новой колоде
     try:
-        validate_match_card_deck_langs(
-            deck=deck,
+        await validate_unique_card(
+            session=session,
+            user=user,
+            deck_id=card.deck_id,
+            word=card.word,
+            translation=card.translation,
             language_a_id=current_card.language_a_id,
             language_b_id=current_card.language_b_id,
+            card_id=card_id,
         )
     except ValueError as error:
         raise HTTPException(
-            status_code=400,
+            status_code=409,
             detail=str(error),
         ) from error
 
-    # Обновляем карточку и возвращаем её
-    return await update_card(
+    # Обновляем карточку через универсальный CRUD
+    return await card_crud.update(
         session=session,
-        card=current_card,
+        instance=current_card,
         data=card.model_dump(),
     )
 

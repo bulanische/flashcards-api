@@ -67,3 +67,24 @@ class BaseCRUD(Generic[ModelType]):
 
         # Возвращаем список найденных объектов
         return list(result.scalars().all())
+
+
+    async def update(
+        self,
+        session: AsyncSession,
+        instance: ModelType,
+        data: dict[str, Any],
+    ) -> ModelType:
+        """Обновляет существующую запись в базе данных."""
+
+        # Обновляем переданные поля объекта
+        for field, value in data.items():
+            setattr(instance, field, value)
+
+        # Сохраняем изменения в базе данных
+        await session.commit()
+
+        # Получаем актуальные данные объекта из базы
+        await session.refresh(instance)
+
+        return instance
