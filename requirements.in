@@ -5,4 +5,8 @@ pydantic-settings
 python-dotenv
 alembic
 pydantic[email]
-asyncpg
+
+# Тестирование
+pytest
+pytest-asyncio
+httpx

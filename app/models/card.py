@@ -27,7 +27,10 @@ class Card(CommonMixin, Base):
 
     # ID колоды, которой принадлежит карточка
     deck_id: Mapped[int] = mapped_column(
-        ForeignKey("decks.id")
+        ForeignKey(
+            "decks.id",
+            ondelete="CASCADE",
+        ),
     )
 
     # Первый язык карточки

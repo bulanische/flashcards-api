@@ -68,7 +68,6 @@ class BaseCRUD(Generic[ModelType]):
         # Возвращаем список найденных объектов
         return list(result.scalars().all())
 
-
     async def update(
         self,
         session: AsyncSession,
@@ -88,3 +87,16 @@ class BaseCRUD(Generic[ModelType]):
         await session.refresh(instance)
 
         return instance
+
+    async def delete(
+        self,
+        session: AsyncSession,
+        instance: ModelType,
+    ) -> None:
+        """Удаляет существующую запись из базы данных."""
+
+        # Удаляем объект из текущей сессии
+        await session.delete(instance)
+
+        # Сохраняем изменения в базе данных
+        await session.commit()

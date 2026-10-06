@@ -36,10 +36,7 @@ SessionDependency = Annotated[
     Depends(get_async_session),
 ]
 
-@router.get(
-    "/",
-    response_model=list[CardRead],
-)
+@router.get("/", response_model=list[CardRead])
 async def get_all_cards(
     session: SessionDependency,
     deck_ids: list[int] | None = Query(default=None),
@@ -53,7 +50,7 @@ async def get_all_cards(
         deck_ids=deck_ids,
     )
 
-@router.post("/")
+@router.post("/", response_model=CardRead)
 async def create_new_card(
     card: CardCreate,
     session: SessionDependency,
@@ -139,18 +136,30 @@ async def update_existing_card(
         )
 
     # Проверяем доступность новой колоды
-    deck = await validate_card_deck(
-        session=session,
-        deck_id=card.deck_id,
-        user=user,
-    )
+    try:
+        deck = await validate_card_deck(
+            session=session,
+            deck_id=card.deck_id,
+            user=user,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=404,
+            detail=str(error),
+        ) from error
 
     # Проверяем соответствие языков карточки языкам новой колоды
-    validate_match_card_deck_langs(
-        deck=deck,
-        language_a_id=current_card.language_a_id,
-        language_b_id=current_card.language_b_id,
-    )
+    try:
+        validate_match_card_deck_langs(
+            deck=deck,
+            language_a_id=current_card.language_a_id,
+            language_b_id=current_card.language_b_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        ) from error
 
     # Проверяем, что такая карточка ещё не существует в новой колоде
     try:
@@ -200,10 +209,8 @@ async def delete_card(
             detail="Card not found or unavailable.",
         )
 
-    # Удаляем карточку из базы данных
-    await session.delete(card)
-
-    # Сохраняем изменения в базе данных
-    await session.commit()
-
-    return {"detail": "Card deleted successfully."}
+    # Удаляем карточку через универсальный CRUD
+    await card_crud.delete(
+        session=session,
+        instance=card,
+    )

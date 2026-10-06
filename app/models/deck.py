@@ -44,5 +44,6 @@ class Deck(CommonMixin, Base):
 
     # Карточки этой колоды
     cards: Mapped[list["Card"]] = relationship(
-        back_populates="deck"
+        back_populates="deck",
+        passive_deletes=True,
     )

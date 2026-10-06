@@ -27,7 +27,7 @@ SessionDependency = Annotated[
 ]
 
 
-@router.get("/")
+@router.get("/", response_model=list[DeckRead])
 async def get_all_decks(
     session: SessionDependency,
     user: User = Depends(current_user),
@@ -41,7 +41,7 @@ async def get_all_decks(
     )
 
 
-@router.post("/")
+@router.post("/", response_model=DeckRead)
 async def create_deck(
     deck: DeckCreate,
     session: SessionDependency,
@@ -144,4 +144,32 @@ async def update_deck(
         session=session,
         instance=current_deck,
         data=deck.model_dump(),
+    )
+
+@router.delete("/{deck_id}", status_code=204)
+async def delete_deck(
+    deck_id: int,
+    session: SessionDependency,
+    user: User = Depends(current_user),
+):
+    """Удаляет колоду текущего пользователя."""
+
+    # Получаем колоду только среди колод текущего пользователя
+    deck = await get_user_deck_by_deck_id(
+        session=session,
+        deck_id=deck_id,
+        user=user,
+    )
+
+    # Если колода не найдена или недоступна пользователю
+    if deck is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Deck not found or unavailable.",
+        )
+
+    # Удаляем колоду и связанные с ней карточки
+    await deck_crud.delete(
+        session=session,
+        instance=deck,
     )

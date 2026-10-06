@@ -18,3 +18,4 @@ app.include_router(auth_router)
 
 # uvicorn app.main:app --reload
 # docker compose up -d
+# workflow для запуска всего проекта ./start.sh
