@@ -44,6 +44,12 @@ class UserCardProgress(CommonMixin, Base):
         nullable=True
     )
 
+    # Последняя оценка пользователя по карточке
+    last_answer_correct: Mapped[bool | None] = mapped_column(
+        nullable=True,
+        default=None,
+    )
+
     # Связь с пользователем
     user: Mapped["User"] = relationship()
 

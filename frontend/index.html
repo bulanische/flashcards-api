@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточки для изучения языков</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <main class="app">
+        <h1>Изучение языков</h1>
+        <p>Выберете колоду и начните повторение слов.</p>
+        <section id="review">
+            <p id="card-counter">Карточка 1 из 3</p>
+            <div class="flashcard-scene">
+                <article class="flashcard" id="flashcard">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-face flashcard-front">
+                            <p id="question">Aprovechar</p>
+                            <p class="card-hint">Нажми, чтобы перевернуть</p>
+                        </div>
+
+                        <div class="flashcard-face flashcard-back">
+                            <p id="answer">Пользоваться, извлекать пользу</p>
+                            <p class="card-hint">Нажми, чтобы вернуться</p>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <!-- Кнопки находятся вне карточки и остаются на месте. -->
+            <div id="answer-actions">
+                <button id="forgot" type="button" aria-label="Не помню"
+                        title="Не помню">
+                    ✕
+                </button>
+
+                <button id="remembered" type="button" aria-label="Помню"
+                        title="Помню">
+                    ✓
+                </button>
+            </div>
+        </section>
+    </main>
+    <script src="/static/app.js" defer></script>
+</body>
+</html>

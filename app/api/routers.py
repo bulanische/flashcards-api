@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import cards_router, decks_router, languages_router
-
+from app.api.endpoints import (
+    cards_router, decks_router, languages_router, review_router
+)
 
 main_router = APIRouter()
 
@@ -21,4 +22,10 @@ main_router.include_router(
     languages_router,
     prefix='/languages',
     tags=['Языки'],
+)
+
+main_router.include_router(
+    review_router,
+    prefix="/review",
+    tags=['Повторение']
 )

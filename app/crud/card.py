@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import BaseCRUD
@@ -75,3 +75,20 @@ async def get_user_card_by_card_id(
 
     # Возвращаем найденную карточку или None
     return result.scalar_one_or_none()
+
+async def get_random_deck_cards(
+    session: AsyncSession,
+    deck_id: int,
+) -> list[Card]:
+    """Возвращает карточки указанной колоды в случайном порядке."""
+
+    # Выбираем карточки только из нужной колоды
+    query = select(Card).where(
+        Card.deck_id == deck_id
+    ).order_by(func.random())
+
+    # Выполняем запрос и получаем карточки
+    result = await session.execute(query)
+
+    # Возвращаем список карточек в случайном порядке
+    return list(result.scalars().all())
