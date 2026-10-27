@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from app.api.endpoints.card import SessionDependency
 from app.auth.router import current_user
-from app.crud.card import get_random_deck_cards
+from app.crud.card import get_cards_by_deck_id
 from app.crud.deck import get_user_deck_by_deck_id
 from app.crud.card import get_user_card_by_card_id
 from app.crud.user_card_progress import save_review_answer
@@ -41,7 +41,7 @@ async def get_deck_review(
         )
 
     # Получаем карточки колоды в случайном порядке
-    cards = await get_random_deck_cards(
+    cards = await get_cards_by_deck_id(
         session=session,
         deck_id=deck_id,
     )

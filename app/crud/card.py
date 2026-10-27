@@ -76,7 +76,7 @@ async def get_user_card_by_card_id(
     # Возвращаем найденную карточку или None
     return result.scalar_one_or_none()
 
-async def get_random_deck_cards(
+async def get_cards_by_deck_id(
     session: AsyncSession,
     deck_id: int,
 ) -> list[Card]:
@@ -85,7 +85,7 @@ async def get_random_deck_cards(
     # Выбираем карточки только из нужной колоды
     query = select(Card).where(
         Card.deck_id == deck_id
-    ).order_by(func.random())
+    ).order_by(Card.id)
 
     # Выполняем запрос и получаем карточки
     result = await session.execute(query)

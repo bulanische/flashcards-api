@@ -3,6 +3,7 @@ from fastapi_users import FastAPIUsers
 
 
 from app.auth.auth import auth_backend
+from app.auth.endpoints import router as custom_login_router 
 from app.auth.manager import get_user_manager
 from app.auth.schemas import UserCreate, UserRead
 from app.models.user import User
@@ -35,9 +36,8 @@ router.include_router(
 
 
 # Подключаем маршруты входа и выхода
-router.include_router(
-    fastapi_users.get_auth_router(auth_backend),
-)
+router.include_router(custom_login_router)
+
 
 @router.get("/me")
 async def get_current_user(

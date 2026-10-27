@@ -3,3 +3,4 @@ from app.models.deck import Deck  # NOQA
 from app.models.language import Language  # NOQA
 from app.models.user_card_progress import UserCardProgress  # NOQA
 from app.models.user import User  #NOQA
+from app.models.user_session import UserSession  # NOQA

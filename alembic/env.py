@@ -2,7 +2,7 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
+import sqlalchemy as sa
 from alembic import context
 
 # Импортируем настройки подключения к базе данных
@@ -25,8 +25,6 @@ if is_test:
     database_url = database_url.rsplit("/", 1)[0] + "/cards_test"
 
 # Временно проверяем выбранную базу.
-print(f"Alembic test mode: {is_test}")
-print(f"Alembic database URL: {database_url}")
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -68,29 +66,27 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Запускает миграции в обычном режиме."""
-
-    # Создаём синхронный URL для Alembic.
+    """Запускает миграции и выводит диагностическую информацию."""
     sync_database_url = database_url.replace(
         "postgresql+asyncpg://",
         "postgresql://",
     )
-
-    # Создаём подключение к выбранной базе данных.
     connectable = engine_from_config(
         {"sqlalchemy.url": sync_database_url},
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    # Открываем соединение с базой данных.
-    with connectable.connect() as connection:
-        # Передаём соединение и metadata моделей Alembic.
+    with connectable.begin() as connection:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
         )
-
-        # Запускаем миграции внутри транзакции.
         with context.begin_transaction():
             context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()

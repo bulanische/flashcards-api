@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_server: str
     postgres_port: int = 5432
+    refresh_token_lifetime_days: int = 7
+    cookie_secure: bool = True
+    refresh_cookie_path: str = "/auth"
+    refresh_cookie_samesite: str = "lax"
 
     model_config = SettingsConfigDict(env_file=".env")
 

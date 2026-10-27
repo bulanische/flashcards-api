@@ -8,8 +8,20 @@
 </head>
 <body>
     <main class="app">
-        <h1>Изучение языков</h1>
-        <p>Выберете колоду и начните повторение слов.</p>
+        <h1>Изучение языков</h1>        
+    <p>Выберите колоду и начните повторение слов.</p>
+
+    <!-- Выбор колоды для повторения. -->
+    <div id="deck-selection">
+        <label for="deck-select">Колода:</label>
+        <select id="deck-select">
+            <option value="">Загрузка колод...</option>
+        </select>
+
+        <button id="start-review" type="button" disabled>
+            Начать повторение
+        </button>
+    </div>
         <section id="review">
             <p id="card-counter">Карточка 1 из 3</p>
             <div class="flashcard-scene">
