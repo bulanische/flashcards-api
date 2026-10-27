@@ -57,11 +57,6 @@ pip install -r requirements.txt
 ./start.sh
 ```
 
-Остановка:
-
-```bash
-./stop.sh
-```
 
 Применение миграций:
 
