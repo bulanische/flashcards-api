@@ -29,14 +29,23 @@ async def generate_refresh_token(
 
 def set_refresh_cookie(response: Response, refresh_token: str) -> None:
     """Устанавливает refresh-токен в защищённую cookie."""
-
-    # HttpOnly запрещает доступ к cookie из JavaScript.
     response.set_cookie(
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
-        samesite="lax",
+        secure=settings.cookie_secure,
+        samesite=settings.refresh_cookie_samesite,
         max_age=REFRESH_COOKIE_MAX_AGE,
-        path="/auth",
+        path=settings.refresh_cookie_path,
+    )
+
+
+def clear_refresh_cookie(response: Response) -> None:
+    """Удаляет refresh-cookie из браузера."""
+    response.delete_cookie(
+        key="refresh_token",
+        path=settings.refresh_cookie_path,
+        secure=settings.cookie_secure,
+        httponly=True,
+        samesite=settings.refresh_cookie_samesite,
     )

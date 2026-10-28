@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import hashlib
 
 from fastapi import (
     APIRouter, Cookie, Depends, HTTPException, Request, Response, status
@@ -13,7 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.auth import auth_backend
 from app.auth.manager import get_user_manager
 from app.auth.sessions import get_active_user_session
-from app.auth.manage_tokens import generate_refresh_token, set_refresh_cookie
+from app.auth.manage_tokens import (
+   clear_refresh_cookie,
+   generate_refresh_token,
+   set_refresh_cookie, 
+)
 from app.core.db import get_async_session
 from app.models.user import User
 
@@ -115,3 +118,26 @@ async def refresh_access_token(
         "access_token": access_token,
         "token_type": "bearer",
     }
+
+
+@router.post("/logout")
+async def logout(
+    response: Response,
+    refresh_token: str | None = Cookie(default=None),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Завершает текущую refresh-сессию пользователя."""
+
+    # Отзываем сессию, если cookie содержит действующий токен.
+    if refresh_token is not None:
+        user_session = await get_active_user_session(session, refresh_token)
+
+        if user_session is not None:
+            user_session.revoked_at = datetime.now(timezone.utc)
+            await session.commit()
+
+    # Очищаем cookie даже при отсутствии или недействительности токена.
+    clear_refresh_cookie(response)
+
+    return {"message": "LOGOUT_SUCCESS"}
+

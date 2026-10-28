@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import EmailStr, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -23,7 +25,7 @@ class Settings(BaseSettings):
     refresh_token_lifetime_days: int = 7
     cookie_secure: bool = True
     refresh_cookie_path: str = "/auth"
-    refresh_cookie_samesite: str = "lax"
+    refresh_cookie_samesite: Literal["lax", "strict", "none"] = "lax"
 
     model_config = SettingsConfigDict(env_file=".env")
 
