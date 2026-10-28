@@ -1,10 +1,143 @@
-
 const flashcard = document.querySelector("#flashcard");
 const forgotButton = document.querySelector("#forgot");
 const rememberedButton = document.querySelector("#remembered");
 const question = document.querySelector("#question");
 const answer = document.querySelector("#answer");
 const cardCounter = document.querySelector("#card-counter");
+const authSection = document.querySelector("#auth");
+const loginForm = document.querySelector("#login-form");
+const authError = document.querySelector("#auth-error");
+const userPanel = document.querySelector("#user-panel");
+const logoutButton = document.querySelector("#logout");
+const deckSelection = document.querySelector("#deck-selection");
+const reviewSection = document.querySelector("#review");
+const deckSelect = document.querySelector("#deck-select");
+const startReviewButton = document.querySelector("#start-review");
+
+// Загружаем колоды текущего пользователя.
+async function loadDecks() {
+    deckSelect.replaceChildren();
+    startReviewButton.disabled = true;
+
+    try {
+        const response = await fetch("/decks/", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось загрузить колоды.");
+        }
+
+        const decks = await response.json();
+
+        if (decks.length === 0) {
+            deckSelect.add(new Option("Нет доступных колод", ""));
+            return;
+        }
+
+        deckSelect.add(new Option("Выберите колоду", ""));
+
+        decks.forEach((deck) => {
+            deckSelect.add(new Option(deck.name, deck.id));
+        });
+
+        startReviewButton.disabled = false;
+    } catch (error) {
+        deckSelect.add(new Option("Ошибка загрузки колод", ""));
+        console.error(error);
+    }
+}
+
+// Показываем нужные блоки в зависимости от авторизации.
+function setAuthenticatedUI(isAuthenticated) {
+    authSection.hidden = isAuthenticated;
+    userPanel.hidden = !isAuthenticated;
+    deckSelection.hidden = !isAuthenticated;
+    reviewSection.hidden = !isAuthenticated;
+}
+
+// Храним access-токен только в памяти текущей страницы.
+let accessToken = null;
+
+// Отправляем данные формы на API для входа.
+loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    authError.textContent = "";
+
+    const formData = new FormData(loginForm);
+    const credentials = new URLSearchParams(formData);
+
+    try {
+        const response = await fetch("/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: credentials,
+            credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error("Неверный email или пароль.");
+        }
+
+        accessToken = data.access_token;
+
+        setAuthenticatedUI(true);
+        await loadDecks();
+    } catch (error) {
+        authError.textContent =
+            error.message || "Не удалось выполнить вход.";
+    }
+});
+
+// Завершаем сессию на сервере и возвращаем форму входа.
+logoutButton.addEventListener("click", async () => {
+    try {
+        const response = await fetch("/auth/logout", {
+            method: "POST",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            throw new Error("Не удалось завершить сессию.");
+        }
+
+        accessToken = null;
+        setAuthenticatedUI(false);
+        loginForm.reset();
+        authError.textContent = "";
+    } catch (error) {
+        authError.textContent =
+            error.message || "Ошибка при выходе.";
+    }
+});
+
+// Восстанавливаем авторизацию по refresh-cookie.
+async function restoreSession() {
+    try {
+        const response = await fetch("/auth/refresh", {
+            method: "POST",
+            credentials: "include",
+        });
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+        accessToken = data.access_token;
+
+        setAuthenticatedUI(true);
+        await loadDecks();
+    } catch (error) {
+        console.error("Не удалось восстановить сессию:", error);
+    }
+}
 
 // Временная колода для проверки интерфейса.
 const cards = [
@@ -117,3 +250,6 @@ rememberedButton.addEventListener("click", () => {
 
 // Показываем первую карточку.
 renderCard();
+
+// Проверяем сохранённую сессию после загрузки страницы.
+restoreSession();

@@ -8,11 +8,41 @@
 </head>
 <body>
     <main class="app">
-        <h1>Изучение языков</h1>        
+        <h1>Изучение языков</h1>
+        <!-- Форма входа отображается неавторизованному пользователю. -->
+        <section id="auth">
+            <form id="login-form">
+                <label for="login-email">Email:</label>
+                <input
+                    id="login-email"
+                    name="username"
+                    type="email"
+                    autocomplete="username"
+                    required
+                >
+
+                <label for="login-password">Пароль:</label>
+                <input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit">Войти</button>
+                <p id="auth-error" role="alert"></p>
+            </form>
+        </section>
+
+        <!-- Панель пользователя отображается после успешного входа. -->
+        <section id="user-panel" hidden>
+            <button id="logout" type="button">Выйти</button>
+        </section>
     <p>Выберите колоду и начните повторение слов.</p>
 
     <!-- Выбор колоды для повторения. -->
-    <div id="deck-selection">
+    <div id="deck-selection" hidden>
         <label for="deck-select">Колода:</label>
         <select id="deck-select">
             <option value="">Загрузка колод...</option>
@@ -22,7 +52,7 @@
             Начать повторение
         </button>
     </div>
-        <section id="review">
+        <section id="review" hidden>
             <p id="card-counter">Карточка 1 из 3</p>
             <div class="flashcard-scene">
                 <article class="flashcard" id="flashcard">
